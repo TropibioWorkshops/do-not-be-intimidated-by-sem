@@ -22,6 +22,7 @@ library(piecewiseSEM)
 library(ggplot2)
 library(reshape2)
 library(tibble)
+library(foreign)
 
 
 # Plant the seed
@@ -30,9 +31,9 @@ n <- 100
 
 # Data generation
 wolves <- rnorm(n, mean = 10, sd = 3)  # Wolves
-herbivores <- 150 - 10 * wolves + rnorm(n, mean = 0, sd = 20)  # Herbivores
-cover <- 50 + 5 * wolves - 2 * herbivores + rnorm(n, mean = 0, sd = 5)  # Vegetation-Cover
-altitude <- rnorm(n, mean = 2000, sd = 500)
+ungulates <- 150 - 10 * wolves + rnorm(n, mean = 0, sd = 20)  # Herbivores
+plants <- 50 + 5 * wolves - 2 * ungulates + rnorm(n, mean = 0, sd = 5)  # Vegetation-Cover
+#altitude <- rnorm(n, mean = 2000, sd = 500)
 data <- tibble(
                 wolves = round(wolves),
                 herbivores = round(herbivores),
@@ -45,13 +46,13 @@ head(data)
 round(cor(data),2)
 
 # Multiple linear regresion
-m1 <- lm(cover ~ herbivores + wolves + altitude, data)
+m1 <- lm(plants ~ ungulates + wolves, data)
 summary(m1)
 
 plot(m1)
 
 # Path analysis
-model <-'cover ~ 1 + herbivores + wolves + altitude'
+model <-'plants ~ 1 + ungulates + wolves'
 m2 <- sem(model,data=data)
 summary(m2,fit.measures=TRUE)
 
@@ -62,10 +63,10 @@ summary(m2,fit.measures=TRUE)
 model <- '
 
 # Direct path
-  cover ~ c*wolves
-# Path through mediator: Herbivores
-  herbivores ~ a * wolves
-  cover ~ b * herbivores
+  plants ~ c*wolves
+# Path through mediator: Plants
+  ungulates ~ a * wolves
+  plants ~ b * ungulates
 # Indirect effect (a*b)
   indirect := a*b
 # Total effect
@@ -126,52 +127,25 @@ summary(m4, fit.measures=TRUE, standardized=TRUE)
 
 
 
-df <- read.csv("/Users/javiermartinez/Documents/CIBIO/Workshops/CIBIO24/cfa.csv")
-#covariance of Items
-round(cor(df[,2:ncol(df)]),2)
+#import data
+dat <- read.spss("https://stats.idre.ucla.edu/wp-content/uploads/2018/05/SAQ.sav",to.data.frame=TRUE, use.value.labels = FALSE)
 
-# creating correlation matrix
-corr_mat <- round(cor(data_cfa),2)
-
-# reduce the size of correlation matrix
-melted_corr_mat <- melt(corr_mat)
-# head(melted_corr_mat)
-
-# plotting the correlation heatmap
-ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
-                                   fill=value))  + 
-  geom_tile() +
-  geom_text(aes(Var2, Var1, label = value), 
-            color = "black", size = 4)
-
-model_desc = '
-    Environmental_Quality =~ Biodiversity + Water_Quality + Vegetation_Density
-    Environmental_Contamination =~ Air_Pollution + Presence_of_Invasive_Species
-    Climate =~ Average_Annual_Temperature + Annual_Precipitation
-    '
-
-# Fit the CFA model
-model = cfa(model_desc, data=df)
-summary(model)
-
-# Summary of results
-model.inspect()
-
-
+#covariance of Items 3 to 5
+round(cov(dat[,3:5]),2)
 
 #one factor three items, default marker method
 m1a  <- ' f  =~ q03 + q04 + q05'
-onefac3items_a <- cfa(m1a, data=df) 
+onefac3items_a <- cfa(m1a, data=dat) 
 summary(onefac3items_a) 
 
 #one factor three items, variance std 
 m1b  <- ' f =~ NA*q03 + q04 + q05
           f ~~ 1*f ' 
-onefac3items_b <- cfa(m1b, data=df) 
+onefac3items_b <- cfa(m1b, data=dat) 
 summary(onefac3items_b)
 
 #alternative model to variance standardization 
-onefac3items_a <- cfa(m1a, data=df,std.lv=TRUE)
+onefac3items_a <- cfa(m1a, data=dat,std.lv=TRUE)
 summary(onefac3items_a)
 
 #obtain standardized loadings
@@ -188,22 +162,22 @@ m1c <- ' f =~ q03 + q04 + q05
               q03 ~ 1 
               q04 ~ 1 
               q05 ~ 1' 
-onefac3items_c <- cfa(m1c, data=df) 
+onefac3items_c <- cfa(m1c, data=dat) 
 summary(onefac3items_c)
 
 #error with default two items
 m2a <- 'f1 =~ q03 + q04' 
-onefac2items <- cfa(m2a, data=df)
+onefac2items <- cfa(m2a, data=dat)
 summary(onefac2items)
 
 #one factor, two items (var std) 
 m2b <- 'f1 =~ a*q04 + a*q05' 
-onefac2items_b <- cfa(m2b, data=df,std.lv=TRUE) 
+onefac2items_b <- cfa(m2b, data=dat,std.lv=TRUE) 
 summary(onefac2items_b)
 
 #one factor eight items, variance std 
 m3a <- 'f =~ q01 + q02 + q03 + q04 + q05 + q06 + q07 + q08' 
-onefac8items_a <- cfa(m3a, data=df,std.lv=TRUE) 
+onefac8items_a <- cfa(m3a, data=dat,std.lv=TRUE) 
 summary(onefac8items_a, fit.measures=TRUE, standardized=TRUE)
 
 #covariance of Items 1 through 8 
@@ -225,14 +199,14 @@ b1 <- ' q01 ~~ q01
         q07 ~~ q07 
         q08 ~~ q08' 
 
-basemodel <- cfa(b1, data=df)
+basemodel <- cfa(b1, data=dat)
 summary(basemodel)
 
 #uncorrelated two factor solution, var std method
 m4a <- 'f1 =~ q01+ q03 + q04 + q05 + q08 
         f2 =~ a*q06 + a*q07 
         f1 ~~ 0*f2 ' 
-twofac7items_a <- cfa(m4a, data=df,std.lv=TRUE)
+twofac7items_a <- cfa(m4a, data=dat,std.lv=TRUE)
 
 #alternative syntax - uncorrelated two factor solution, var std method
 twofac7items_a <- cfa(m4a, data=dat,std.lv=TRUE, auto.cov.lv.x=FALSE) 
@@ -241,7 +215,7 @@ summary(twofac7items_a, fit.measures=TRUE,standardized=TRUE)
 #uncorrelated two factor solution, marker method
 m4b <- 'f1 =~ q01+ q03 + q04 + q05 + q08 
         f2 =~ q06 + q07' 
-twofac7items_b <- cfa(m4b, data=df,std.lv=TRUE) 
+twofac7items_b <- cfa(m4b, data=dat,std.lv=TRUE) 
 summary(twofac7items_b,fit.measures=TRUE,standardized=TRUE)
 
 #second order three factor solution, marker method
@@ -249,7 +223,7 @@ m5a <- 'f1 =~ q01+ q03 + q04 + q05 + q08
         f2 =~ q06 + q07 
         f3 =~ 1*f1 + 1*f2 
         f3 ~~ f3' 
-secondorder <- cfa(m5a, data=df) 
+secondorder <- cfa(m5a, data=dat) 
 summary(secondorder,fit.measures=TRUE,standardized=TRUE)
 
 #second order three factor solution, var std method
@@ -259,23 +233,10 @@ m5b <- 'f1 =~ NA*q01+ q03 + q04 + q05 + q08
         f1 ~~ 1*f1 
         f2 ~~ 1*f2 
         f3 ~~ 1*f3' 
-secondorder <- cfa(m5b, data=df) 
+secondorder <- cfa(m5b, data=dat) 
 summary(secondorder,fit.measures=TRUE)
 
 #obtain the parameter table of the second order factor
 inspect(secondorder,"partable")
-
-
-#### Mediation analysis ####
-
-
-#### SEM with non-normal data ####
-
-
-#### SEM with categorical data ####
-
-
-
-
 
 
