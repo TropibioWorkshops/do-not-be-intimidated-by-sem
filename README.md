@@ -16,4 +16,5 @@ SCHEDULE
 
 COURSE INSTRUCTORS
 Fernanda Alves Martins (Coordinator) | BIOPOLIS/CIBIO - APPLECOL/TROPBIO
+  
 Javier Martinez Arribas | BIOPOLIS-CIBIO
