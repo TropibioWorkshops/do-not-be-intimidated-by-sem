@@ -5,12 +5,12 @@ Embark on this journey into the world of Structural Equation Models (SEM) – a 
 
 PROGRAM (24 hours)
   
-• A brief overview of Structural Equation Models (SEM)
-• Correlation and regression
-• Acyclic graphs, conceptual models and graphical representation
-• SEM fit with d-separation in piecewise SEM and model’s coefficient estimation
-• An introduction to programming using R
-• SEM practical exercises using R
+• A brief overview of Structural Equation Models (SEM)  
+• Correlation and regression  
+• Acyclic graphs, conceptual models and graphical representation  
+• SEM fit with d-separation in piecewise SEM and model’s coefficient estimation  
+• An introduction to programming using R  
+• SEM practical exercises using R  
 
 SCHEDULE
   
