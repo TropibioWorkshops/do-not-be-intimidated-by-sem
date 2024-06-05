@@ -385,26 +385,11 @@ m4a <- '
 '
 fit4a <- sem(m4a, data=dat)
 summary(fit4a)
+semPlot::semPaths(fit4a, "std")
 
-#re-run with fit indexes
-summary(fit4a, fit.measures=TRUE)
-
-#model chi-square 
-pchisq(q=4.870,df=1,lower.tail=FALSE)
 
 #modification index
 modindices(fit4a,sort=TRUE)
-
-## model4a customized for degrees of freedom
-m4aa <- '
-  # regressions
-    read ~ 1 + ppsych + motiv
-    motiv ~ 1 + arith + read
-  # covariance
-  #  read ~~ 0*arith 
-'
-fit4aa <- sem(m4aa, data=dat)
-summary(fit4aa)
 
 #path analysis model after modification
 m4b <- '
@@ -414,18 +399,9 @@ m4b <- '
 '
 fit4b <- sem(m4b, data=dat)
 summary(fit4b)
+semPlot::semPaths(fit4a, "std")
 modindices(fit4b,sort=TRUE)
 
-#baseline model
-m4c <- '
-  # variances only
-    read ~~ read 
-    ppsych ~~ ppsych
-    motiv ~~ motiv
-    arith ~~ arith
-'
-fit4c <- sem(m4c, data=dat)
-summary(fit4c, fit.measures=TRUE)
 
 ### MODEL 5:  MEASUREMENT MODEL ###
 
@@ -437,6 +413,7 @@ m5a <- 'risk =~ verbal + ses + ppsych
           ppsych ~ 1' 
 fit5a <- sem(m5a, data=dat) 
 summary(fit5a, standardized=TRUE)
+semPlot::semPaths(fit5a, "std")
 
 ### MODEL 6: STRUCTURAL REGRESSION ###
 
@@ -451,6 +428,7 @@ m6a <- '
 '
 fit6a <- sem(m6a, data=dat)
 summary(fit6a, standardized=TRUE, fit.measures=TRUE)
+semPlot::semPaths(fit6a, "std")
 
 #structural regression (two endogenous variables)
 m6b <- '
@@ -464,6 +442,7 @@ m6b <- '
 '
 fit6b <- sem(m6b, data=dat)
 summary(fit6b, standardized=TRUE, fit.measures=TRUE)
+semPlot::semPaths(fit6b, "std")
 
 #structural regression (observed endogenous variable)
 m6c <- '
